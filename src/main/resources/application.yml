@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis:
+  type-aliases-package: com.zhangaochong.data_transport_demo.dao
+  mapper-locations: classpath:mapper/*.xml
+
+data-transport:
+  multi-datasource:
+    datasource1:
+      url:
+      username:
+      password:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    datasource2:
+      url:
+      username:
+      password:
+      driver-class-name: com.mysql.cj.jdbc.Driver
