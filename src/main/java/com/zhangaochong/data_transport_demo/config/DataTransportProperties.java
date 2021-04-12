@@ -17,4 +17,6 @@ import java.util.Map;
 public class DataTransportProperties {
     /** 多数据源配置 */
     private Map<String, DataSourceProperties> multiDatasource;
+    /** 备份表后缀 */
+    private String backupTablePostfix = "_bak";
 }

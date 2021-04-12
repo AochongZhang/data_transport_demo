@@ -11,6 +11,12 @@ import java.util.Map;
  * @date 2021-04-12 10:00
  */
 public abstract class StringParamsUtils {
+    /**
+     * 解析字符串参数
+     *
+     * @param params 字符串参数 格式 key1=value1,key2=value2...
+     * @return 参数集合
+     */
     public static Map<String, String> parseParams(String params) {
         if (StringUtils.isEmpty(params)) {
             return Collections.emptyMap();

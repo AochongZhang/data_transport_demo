@@ -7,4 +7,33 @@
         where TABLE_SCHEMA = (select database())
           and table_name = #{tableName}
     </select>
+
+    <select id="isColumnExist" resultType="java.lang.String">
+        select COLUMN_NAME
+        from information_schema.COLUMNS
+        where TABLE_NAME = #{tableName}
+          and COLUMN_NAME = #{column}
+    </select>
+
+    <update id="createTableLike">
+        create table if not exists ${newTableName} like ${oldTableName}
+    </update>
+
+    <insert id="copyData">
+        replace into ${toTableName} select * from ${fromTableName} where ${dateColumn} &lt;= #{endTime} limit #{rowNum}
+    </insert>
+
+    <delete id="delete">
+        delete from ${tableName} limit #{rowNum};
+    </delete>
+
+    <insert id="recoverData">
+        <if test="isOverwrite">
+            replace into
+        </if>
+        <if test="!isOverwrite">
+            insert ignore into
+        </if>
+        ${toTableName} select * from ${fromTableName} where ${dateColumn} between #{startTime} and #{endTime}
+    </insert>
 </mapper>
