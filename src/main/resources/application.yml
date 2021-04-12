@@ -21,3 +21,16 @@ data-transport:
       username:
       password:
       driver-class-name: com.mysql.cj.jdbc.Driver
+
+xxl:
+  job:
+    admin:
+      addresses: http://127.0.0.1:8080/xxl-job-admin
+    accessToken:
+    executor:
+      appname: data-tansport-demo-jobhandler
+      logpath: /tmp/applogs/xxl-job/data-tansport-demo-jobhandler
+      port: 9999
+      ip:
+      address:
+      logretentiondays: -1
