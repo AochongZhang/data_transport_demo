@@ -43,4 +43,11 @@ class DataTransportServiceTest {
         boolean columnExist = dataTransportService.isColumnExist("test1", "name");
         System.out.println(columnExist);
     }
+
+    @Test
+    void getCreateTableSql() {
+        MultiDatasourceThreadLocal.setDatasourceName("datasource1");
+        String sql = dataTransportService.getCreateTableSql("test1");
+        System.out.println(sql);
+    }
 }

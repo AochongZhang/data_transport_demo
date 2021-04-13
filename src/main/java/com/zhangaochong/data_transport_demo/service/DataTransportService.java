@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * @author Aochong Zhang
@@ -171,5 +172,16 @@ public class DataTransportService {
         String backupTablePostfix = StringUtils.isEmpty(dataTransportProperties.getBackupTablePostfix()) ? "_bak"
                 : dataTransportProperties.getBackupTablePostfix();
         return tableName + backupTablePostfix;
+    }
+
+    /**
+     * 获取建表语句
+     *
+     * @param tableName 表名 有SQL注入风险，表名需经过校验，{@link #isTableExist}
+     * @return 建表语句
+     */
+    public String getCreateTableSql(String tableName) {
+        Map<String, String> createTable = dataTransportDao.showCreateTable(tableName);
+        return createTable.get("Create Table");
     }
 }

@@ -1,11 +1,9 @@
 package com.zhangaochong.data_transport_demo.vo;
 
-import com.zhangaochong.data_transport_demo.enums.DataTransportTimeUnit;
 import com.zhangaochong.data_transport_demo.util.DataTransportUtils;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**

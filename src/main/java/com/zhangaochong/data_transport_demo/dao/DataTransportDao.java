@@ -26,4 +26,6 @@ public interface DataTransportDao {
                      @Param("dateColumn") String dateColumn, @Param("isOverwrite") Boolean isOverwrite);
 
     String isColumnExist(@Param("tableName") String tableName, @Param("column") String column);
+
+    Map<String, String> showCreateTable(@Param("tableName") String tableName);
 }

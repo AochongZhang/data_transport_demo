@@ -36,4 +36,8 @@
         </if>
         ${toTableName} select * from ${fromTableName} where ${dateColumn} between #{startTime} and #{endTime}
     </insert>
+
+    <select id="showCreateTable" resultType="java.util.Map" parameterType="java.lang.String">
+        show create table ${tableName}
+    </select>
 </mapper>
