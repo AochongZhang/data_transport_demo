@@ -40,4 +40,14 @@
     <select id="showCreateTable" resultType="java.util.Map" parameterType="java.lang.String">
         show create table ${tableName}
     </select>
+
+    <select id="selectData" resultType="java.util.Map" parameterType="java.lang.String">
+        select * from ${tableName}
+    </select>
+
+    <select id="getColumnName" resultType="java.lang.String">
+        select COLUMN_NAME
+        from information_schema.COLUMNS
+        where TABLE_NAME = #{tableName}
+    </select>
 </mapper>

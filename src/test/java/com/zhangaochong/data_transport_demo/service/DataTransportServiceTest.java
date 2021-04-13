@@ -1,17 +1,29 @@
 package com.zhangaochong.data_transport_demo.service;
 
+import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
+import com.zhangaochong.data_transport_demo.util.DataExportFormatStrategy;
+import com.zhangaochong.data_transport_demo.util.DataTransportFileUtils;
+import com.zhangaochong.data_transport_demo.util.SqlInsertDataExportFormatStrategy;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 class DataTransportServiceTest {
     @Autowired
     private DataTransportService dataTransportService;
+
+    @Autowired
+    private DataTransportProperties dataTransportProperties;
 
     @Test
     void createBackupTable() {
@@ -49,5 +61,43 @@ class DataTransportServiceTest {
         MultiDatasourceThreadLocal.setDatasourceName("datasource1");
         String sql = dataTransportService.getCreateTableSql("test1");
         System.out.println(sql);
+    }
+
+    @Test
+    void getColumnName() {
+        List<String> test1 = dataTransportService.getColumnName("test1");
+        System.out.println(test1);
+    }
+
+    @Test
+    void selectData() {
+        MultiDatasourceThreadLocal.setDatasourceName("xxl_job");
+        String tableName = "xxl_job_log";
+        List<String> columnNameList = dataTransportService.getColumnName(tableName);
+        List<Map<String, Object>> dataList = dataTransportService.selectData(tableName);
+        System.out.println(columnNameList);
+        System.out.println(dataList);
+    }
+
+    @Test
+    void exportData() {
+        String datasourceName = "datasource1";
+        MultiDatasourceThreadLocal.setDatasourceName(datasourceName);
+        String tableName = "test1";
+        List<String> columnNameList = dataTransportService.getColumnName(tableName);
+        List<Map<String, Object>> dataList = dataTransportService.selectData(tableName);
+
+        DataTransportProperties.DataExport dataExport = dataTransportProperties.getDataExport();
+        DataExportFormatStrategy strategy = null;
+        try {
+            strategy = (DataExportFormatStrategy) Class.forName(dataExport.getFormatStrategy()).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (strategy == null) {
+            throw new RuntimeException("格式化策略创建失败");
+        }
+        String format = strategy.format(datasourceName, tableName, columnNameList, dataList);
+        DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
     }
 }

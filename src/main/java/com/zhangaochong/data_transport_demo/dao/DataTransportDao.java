@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,4 +29,8 @@ public interface DataTransportDao {
     String isColumnExist(@Param("tableName") String tableName, @Param("column") String column);
 
     Map<String, String> showCreateTable(@Param("tableName") String tableName);
+
+    List<Map<String, Object>> selectData(@Param("tableName") String tableName);
+
+    List<String> getColumnName(@Param("tableName") String tableName);
 }

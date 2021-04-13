@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -183,5 +184,19 @@ public class DataTransportService {
     public String getCreateTableSql(String tableName) {
         Map<String, String> createTable = dataTransportDao.showCreateTable(tableName);
         return createTable.get("Create Table");
+    }
+
+    /**
+     * 获取表所有字段名
+     *
+     * @param tableName 表名
+     * @return 表中所有字段名
+     */
+    public List<String> getColumnName(String tableName) {
+        return dataTransportDao.getColumnName(tableName);
+    }
+
+    public List<Map<String, Object>> selectData(String tableName) {
+        return dataTransportDao.selectData(tableName);
     }
 }

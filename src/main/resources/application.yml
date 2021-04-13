@@ -11,9 +11,21 @@ mybatis:
   type-aliases-package: com.zhangaochong.data_transport_demo.dao
   mapper-locations: classpath:mapper/*.xml
 
+# 数据迁移配置
 data-transport:
+  # 备份表后缀 (可选, 默认_bak)
   backup-table-postfix: _bak
+  # 导出文件配置
+  data-export:
+    # 导出文件路径 (必填)
+    file-path: ./exportdata
+    # 导出文件格式化策略全类名 (可选, 默认SqlInsertDataExportFormatStrategy)
+    format-strategy: com.zhangaochong.data_transport_demo.util.SqlInsertDataExportFormatStrategy
+    # 导出文件后缀名 (可选, 默认.sql)
+    file-postfix: .sql
+  # 多数据源配置
   multi-datasource:
+    # 数据源名
     datasource1:
       url: jdbc:mysql://localhost:3306/datasource1
       username: root
@@ -21,6 +33,11 @@ data-transport:
       driver-class-name: com.mysql.cj.jdbc.Driver
     datasource2:
       url: jdbc:mysql://localhost:3306/datasource2
+      username: root
+      password: 1306adf
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    xxl_job:
+      url: jdbc:mysql://localhost:3306/xxl_job
       username: root
       password: 1306adf
       driver-class-name: com.mysql.cj.jdbc.Driver
