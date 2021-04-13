@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 @Slf4j
 public abstract class DataTransportFileUtils {
-    public static void exportFile(String path, String fileName, String content, boolean append) {
+    public static String exportFile(String path, String fileName, String content, boolean append) {
         File file = new File(path, fileName);
         if (file.getParentFile().mkdirs()) {
             log.info("创建目录 {}", path);
@@ -22,9 +22,10 @@ public abstract class DataTransportFileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return file.getAbsolutePath();
     }
 
-    public static void exportFile(String path, String fileName, String content) {
-        exportFile(path, fileName, content, false);
+    public static String exportFile(String path, String fileName, String content) {
+        return exportFile(path, fileName, content, false);
     }
 }

@@ -3,6 +3,8 @@ package com.zhangaochong.data_transport_demo.service;
 import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
 import com.zhangaochong.data_transport_demo.dao.DataTransportDao;
+import com.zhangaochong.data_transport_demo.util.DataExportFormatStrategy;
+import com.zhangaochong.data_transport_demo.util.DataTransportFileUtils;
 import com.zhangaochong.data_transport_demo.util.DataTransportTimeUtils;
 import com.zhangaochong.data_transport_demo.vo.BackupDataParam;
 import com.zhangaochong.data_transport_demo.vo.RecoverDataParam;
@@ -198,5 +200,32 @@ public class DataTransportService {
 
     public List<Map<String, Object>> selectData(String tableName) {
         return dataTransportDao.selectData(tableName);
+    }
+
+    /**
+     * 导出数据到文件
+     *
+     * @param datasourceName 数据源名
+     * @param tableName 表名
+     * @param columnNameList 表中所有列名
+     * @param dataList 数据
+     * @return 导出文件的全路径
+     */
+    public String exportData(String datasourceName, String tableName, List<String> columnNameList, List<Map<String, Object>> dataList) {
+        DataTransportProperties.DataExport dataExport = dataTransportProperties.getDataExport();
+
+        // 创建格式化策略
+        DataExportFormatStrategy strategy = null;
+        try {
+            strategy = (DataExportFormatStrategy) Class.forName(dataExport.getFormatStrategy()).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (strategy == null) {
+            throw new RuntimeException("格式化策略创建失败");
+        }
+        String format = strategy.format(datasourceName, tableName, columnNameList, dataList);
+
+        return DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
     }
 }

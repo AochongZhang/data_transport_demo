@@ -87,17 +87,7 @@ class DataTransportServiceTest {
         List<String> columnNameList = dataTransportService.getColumnName(tableName);
         List<Map<String, Object>> dataList = dataTransportService.selectData(tableName);
 
-        DataTransportProperties.DataExport dataExport = dataTransportProperties.getDataExport();
-        DataExportFormatStrategy strategy = null;
-        try {
-            strategy = (DataExportFormatStrategy) Class.forName(dataExport.getFormatStrategy()).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (strategy == null) {
-            throw new RuntimeException("格式化策略创建失败");
-        }
-        String format = strategy.format(datasourceName, tableName, columnNameList, dataList);
-        DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
+        String s = dataTransportService.exportData(datasourceName, tableName, columnNameList, dataList);
+        System.out.println(s);
     }
 }
