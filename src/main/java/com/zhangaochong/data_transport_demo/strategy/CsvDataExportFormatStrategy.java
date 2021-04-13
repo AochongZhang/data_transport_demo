@@ -1,4 +1,4 @@
-package com.zhangaochong.data_transport_demo.util;
+package com.zhangaochong.data_transport_demo.strategy;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Aochong Zhang
  * @date 2021-04-13 15:15
  */
-public class CsvDataExportFormatStrategyImpl implements DataExportFormatStrategy {
+public class CsvDataExportFormatStrategy implements DataExportFormatStrategy {
 
     @Override
     public String format(String datasourceName, String tableName, List<String> columnNameList, List<Map<String, Object>> dataList) {

@@ -1,6 +1,6 @@
 package com.zhangaochong.data_transport_demo.config;
 
-import com.zhangaochong.data_transport_demo.util.SqlInsertDataExportFormatStrategy;
+import com.zhangaochong.data_transport_demo.strategy.SqlInsertDataExportFormatStrategy;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;

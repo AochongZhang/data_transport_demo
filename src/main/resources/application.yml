@@ -20,7 +20,7 @@ data-transport:
     # 导出文件路径 (必填)
     file-path: ./exportdata
     # 导出文件格式化策略全类名 (可选, 默认SqlInsertDataExportFormatStrategy)
-    format-strategy: com.zhangaochong.data_transport_demo.util.SqlInsertDataExportFormatStrategy
+    format-strategy: com.zhangaochong.data_transport_demo.strategy.SqlInsertDataExportFormatStrategy
     # 导出文件后缀名 (可选, 默认.sql)
     file-postfix: .sql
   # 多数据源配置
