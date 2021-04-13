@@ -1,8 +1,6 @@
 package com.zhangaochong.data_transport_demo.util;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +12,6 @@ import java.util.Map;
  * @date 2021-04-13 10:47
  */
 public class SqlInsertDataExportFormatStrategy implements DataExportFormatStrategy {
-    private static final ThreadLocal<DateFormat> DATEFORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
     @Override
     public String format(String datasourceName, String tableName, List<String> columnNameList, List<Map<String, Object>> dataList) {

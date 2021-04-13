@@ -1,5 +1,7 @@
 package com.zhangaochong.data_transport_demo.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface DataExportFormatStrategy {
+    ThreadLocal<DateFormat> DATEFORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
     /**
      * 格式化数据为字符串
      *
