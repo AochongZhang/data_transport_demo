@@ -1,6 +1,6 @@
 package com.zhangaochong.data_transport_demo.vo;
 
-import com.zhangaochong.data_transport_demo.util.DataTransportUtils;
+import com.zhangaochong.data_transport_demo.util.DataTransportTimeUtils;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -33,8 +33,8 @@ public class RecoverDataParam {
     public static RecoverDataParam formMap(Map<String, String> map) {
         String datasourceName = map.get("datasourceName");
         String tableName = map.get("tableName");
-        LocalDateTime startTime = DataTransportUtils.parseFromString(map.get("startTime"));
-        LocalDateTime endTime = DataTransportUtils.parseFromString(map.get("endTime"));
+        LocalDateTime startTime = DataTransportTimeUtils.parseFromString(map.get("startTime"));
+        LocalDateTime endTime = DataTransportTimeUtils.parseFromString(map.get("endTime"));
         String dateColumn = map.get("dateColumn");
         Boolean isOverwrite = Boolean.valueOf(map.get("isOverwrite"));
 

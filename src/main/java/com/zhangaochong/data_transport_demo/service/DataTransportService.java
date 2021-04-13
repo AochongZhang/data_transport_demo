@@ -3,7 +3,7 @@ package com.zhangaochong.data_transport_demo.service;
 import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
 import com.zhangaochong.data_transport_demo.dao.DataTransportDao;
-import com.zhangaochong.data_transport_demo.util.DataTransportUtils;
+import com.zhangaochong.data_transport_demo.util.DataTransportTimeUtils;
 import com.zhangaochong.data_transport_demo.vo.BackupDataParam;
 import com.zhangaochong.data_transport_demo.vo.RecoverDataParam;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class DataTransportService {
         String backupTable = createBackupTable(params.getTableName());
         // 迁移数据
         int row = transportData(params.getTableName(), backupTable, params.getStepLength(),
-                DataTransportUtils.minusTime(LocalDateTime.now(), params.getTime(), params.getTimeUnit()),
+                DataTransportTimeUtils.minusTime(LocalDateTime.now(), params.getTime(), params.getTimeUnit()),
                 params.getDateColumn());
         MultiDatasourceThreadLocal.removeDatasourceName();
         return row;
