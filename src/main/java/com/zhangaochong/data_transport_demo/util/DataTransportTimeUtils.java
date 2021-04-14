@@ -22,6 +22,8 @@ public abstract class DataTransportTimeUtils {
 
         LocalDateTime toTime;
         switch (timeUnit) {
+            case MINUTE:
+                toTime = fromTime.minusMinutes(time); break;
             case HOUR:
                 toTime = fromTime.minusHours(time); break;
             case DAY:

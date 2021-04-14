@@ -240,6 +240,11 @@ public class DataTransportService {
         return DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
     }
 
+    /**
+     * 数据归档
+     *
+     * @param params 归档参数
+     */
     public void archiveData(ArchiveDataParam params) {
         log.info("[数据归档] 开始============================================");
         log.info("[数据归档] 参数={}", params);
@@ -289,6 +294,12 @@ public class DataTransportService {
         log.info("[数据归档] 结束============================================");
     }
 
+    /**
+     * 使用mysqldump导出表数据
+     *
+     * @param datasourceName 数据源名
+     * @param tableName 表名
+     */
     public void dumpFile(String datasourceName, String tableName) {
         Map<String, DataSourceProperties> multiDatasource = dataTransportProperties.getMultiDatasource();
         DataTransportProperties.ArchiveData archiveData = dataTransportProperties.getArchiveData();

@@ -98,11 +98,11 @@ class DataTransportServiceTest {
     @Test
     void archiveData() {
         ArchiveDataParam param = new ArchiveDataParam();
-        param.setDatasourceName("article");
-        param.setTableName("article");
+        param.setDatasourceName("datasource1");
+        param.setTableName("mocktable");
         param.setTime(1);
-        param.setTimeUnit(DataTransportTimeUnit.HOUR);
-        param.setDateColumn("update_time");
+        param.setTimeUnit(DataTransportTimeUnit.MINUTE);
+        param.setDateColumn("update_date");
         param.setFileMaxSize("100M");
         dataTransportService.archiveData(param);
     }

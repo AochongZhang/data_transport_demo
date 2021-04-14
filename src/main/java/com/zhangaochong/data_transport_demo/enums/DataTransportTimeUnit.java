@@ -11,6 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum DataTransportTimeUnit {
+    MINUTE("MINUTE", "分钟"),
     HOUR("HOUR", "小时"),
     DAY("DAY", "天"),
     WEEK("WEEK", "周"),
