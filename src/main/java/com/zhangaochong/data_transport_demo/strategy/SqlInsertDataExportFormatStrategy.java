@@ -35,11 +35,19 @@ public class SqlInsertDataExportFormatStrategy implements DataExportFormatStrate
 
     private void appendData(StringBuilder result, String columnName, Map<String, Object> data) {
         Object obj = data.get(columnName);
+        // 数字类型不做处理
         if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
             result.append(obj).append(", ");
         } else if (obj instanceof Timestamp) {
+            // 时间格式化
             result.append("'").append(DATEFORMAT.get().format(((Timestamp) obj))).append("', ");
+        } else if (obj instanceof String){
+            // 字符串将'转义为\'
+            String str = (String) obj;
+            str = str.replace("'", "\\'");
+            result.append("'").append(str).append("', ");
         } else {
+            // 其他类型暂不处理
             result.append("'").append(obj).append("', ");
         }
     }

@@ -199,6 +199,7 @@ public class DataTransportService {
     }
 
     public List<Map<String, Object>> selectData(String tableName) {
+        // TODO 导出数据参数
         return dataTransportDao.selectData(tableName);
     }
 
@@ -225,7 +226,7 @@ public class DataTransportService {
             throw new RuntimeException("格式化策略创建失败");
         }
         String format = strategy.format(datasourceName, tableName, columnNameList, dataList);
-
+        // TODO 导出文件名
         return DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
     }
 }
