@@ -30,23 +30,15 @@ public class AochongJobHandler {
 
     @XxlJob("BackupDataJobHandler")
     public ReturnT<String > backupDataJobHandler(String param) throws Exception {
-        log.info("[数据备份] 开始============================================");
-        log.info("[数据备份] 参数={}", param);
         BackupDataParam params = BackupDataParam.formMap(StringParamsUtils.parseParams(param));
         int row = dataTransportService.backupData(params);
-        log.info("[数据备份] 备份条数={}", row);
-        log.info("[数据备份] 结束============================================");
         return ReturnT.SUCCESS;
     }
 
     @XxlJob("RecoverDataJobHandler")
     public ReturnT<String > recoverDataJobHandler(String param) throws Exception {
-        log.info("[数据恢复] 开始============================================");
-        log.info("[数据恢复] 参数={}", param);
         RecoverDataParam params = RecoverDataParam.formMap(StringParamsUtils.parseParams(param));
         int row = dataTransportService.recoverData(params);
-        log.info("[数据备份] 恢复条数={}", row);
-        log.info("[数据恢复] 结束============================================");
         return ReturnT.SUCCESS;
     }
 }

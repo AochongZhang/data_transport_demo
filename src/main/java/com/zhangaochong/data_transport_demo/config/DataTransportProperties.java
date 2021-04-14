@@ -22,6 +22,8 @@ public class DataTransportProperties {
     private String backupTablePostfix = "_bak";
     /** 导出配置 */
     private DataExport dataExport;
+    /** 归档配置 */
+    private ArchiveData archiveData;
 
     @Data
     public static class DataExport {
@@ -31,5 +33,15 @@ public class DataTransportProperties {
         private String formatStrategy = SqlInsertDataExportFormatStrategy.class.getName();
         /** 导出文件后缀名 */
         private String filePostfix = ".sql";
+    }
+
+    @Data
+    public static class ArchiveData {
+        /** 归档文件路径 */
+        private String filePath;
+        /** 归档文件名规则 支持{datasourceName} {tableName} {datetime} */
+        private String fileNamePattern;
+        /** 分批循环迁移每次迁移到临时表数据量 */
+        private Integer stepLength;
     }
 }

@@ -4,16 +4,18 @@ import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
 import com.zhangaochong.data_transport_demo.dao.DataTransportDao;
 import com.zhangaochong.data_transport_demo.strategy.DataExportFormatStrategy;
-import com.zhangaochong.data_transport_demo.util.DataTransportFileUtils;
-import com.zhangaochong.data_transport_demo.util.DataTransportTimeUtils;
+import com.zhangaochong.data_transport_demo.util.*;
+import com.zhangaochong.data_transport_demo.vo.ArchiveDataParam;
 import com.zhangaochong.data_transport_demo.vo.BackupDataParam;
 import com.zhangaochong.data_transport_demo.vo.RecoverDataParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,8 @@ public class DataTransportService {
      * @return 实际备份条数
      */
     public int backupData(BackupDataParam params) {
+        log.info("[数据备份] 开始============================================");
+        log.info("[数据备份] 参数={}", params);
         //  切换数据源
         MultiDatasourceThreadLocal.setDatasourceName(params.getDatasourceName());
         // 表名校验
@@ -57,6 +61,8 @@ public class DataTransportService {
                 DataTransportTimeUtils.minusTime(LocalDateTime.now(), params.getTime(), params.getTimeUnit()),
                 params.getDateColumn());
         MultiDatasourceThreadLocal.removeDatasourceName();
+        log.info("[数据备份] 备份条数={}", row);
+        log.info("[数据备份] 结束============================================");
         return row;
     }
 
@@ -67,6 +73,8 @@ public class DataTransportService {
      * @return 实际恢复条数
      */
     public int recoverData(RecoverDataParam params) {
+        log.info("[数据恢复] 开始============================================");
+        log.info("[数据恢复] 参数={}", params);
         //  切换数据源
         MultiDatasourceThreadLocal.setDatasourceName(params.getDatasourceName());
         // 表名校验
@@ -87,6 +95,8 @@ public class DataTransportService {
         int row = doRecoverData(backupTableName, params.getTableName(), params.getStartTime(), params.getEndTime(),
                 params.getDateColumn(), params.getIsOverwrite());
         MultiDatasourceThreadLocal.removeDatasourceName();
+        log.info("[数据备份] 恢复条数={}", row);
+        log.info("[数据恢复] 结束============================================");
         return row;
     }
 
@@ -228,5 +238,78 @@ public class DataTransportService {
         String format = strategy.format(datasourceName, tableName, columnNameList, dataList);
         // TODO 导出文件名
         return DataTransportFileUtils.exportFile(dataExport.getFilePath(), "test1" + dataExport.getFilePostfix(), format);
+    }
+
+    public void archiveData(ArchiveDataParam params) {
+        log.info("[数据归档] 开始============================================");
+        log.info("[数据归档] 参数={}", params);
+        // 迁移数据到临时表
+        //  切换数据源
+        MultiDatasourceThreadLocal.setDatasourceName(params.getDatasourceName());
+        // 表名校验
+        if (!isTableExist(params.getTableName())) {
+            throw new IllegalArgumentException("数据源" + params.getDatasourceName() + "中表" + params.getTableName()
+                    + "不存在");
+        }
+        // 时间列校验
+        if (!isColumnExist(params.getTableName(), params.getDateColumn())) {
+            throw new IllegalArgumentException("数据源" + params.getDatasourceName() + "中表" + params.getTableName()
+                    + "时间列" + params.getDateColumn() + "不存在");
+        }
+        String tempTableName = params.getTableName() + "_temp";
+        log.info("[数据归档] 创建临时表{}", tempTableName);
+        dataTransportDao.createTableLike(params.getTableName(), tempTableName);
+        long fileMaxSize = FileSizeUtils.parseToByte(params.getFileMaxSize());
+        // 分批循环迁移数据
+        int row = 0;
+        int countRow = 0;
+        do {
+            log.info("[数据归档] 分批迁移到临时表开始，步长={}", dataTransportProperties.getArchiveData().getStepLength());
+            row = transportData(params.getTableName(), tempTableName, dataTransportProperties.getArchiveData().getStepLength(),
+                    DataTransportTimeUtils.minusTime(LocalDateTime.now(), params.getTime(), params.getTimeUnit()),
+                    params.getDateColumn());
+            countRow += row;
+            Long dataLength = getDataLength(tempTableName);
+            // 临时表数据量达到指定最大文件大小，执行dump临时表为文件
+            if (row != 0 && dataLength >= fileMaxSize) {
+                log.info("[数据归档] 分批迁移中, 临时表数据量达到最大文件大小, 临时表大小={}Byte, 最大文件大小={}Byte", dataLength, fileMaxSize);
+                dumpFile(params.getDatasourceName(), tempTableName);
+                dataTransportDao.truncate(tempTableName);
+            }
+        } while (row != 0);
+        Integer tableRow = dataTransportDao.getTableRow(tempTableName);
+        if (tableRow != 0) {
+            log.info("[数据归档] 分批迁移结束, 最后临时表数据量={}", tableRow);
+            dumpFile(params.getDatasourceName(), tempTableName);
+        }
+        dataTransportDao.dropTable(tempTableName);
+        // 压缩上传文件
+        MultiDatasourceThreadLocal.removeDatasourceName();
+        log.info("[数据归档] 归档条数={}", countRow);
+        log.info("[数据归档] 结束============================================");
+    }
+
+    public void dumpFile(String datasourceName, String tableName) {
+        Map<String, DataSourceProperties> multiDatasource = dataTransportProperties.getMultiDatasource();
+        DataTransportProperties.ArchiveData archiveData = dataTransportProperties.getArchiveData();
+        DataSourceProperties datasource1 = multiDatasource.get(datasourceName);
+        String path = archiveData.getFilePath().endsWith("/") ? archiveData.getFilePath() : archiveData.getFilePath() + "/";
+        File file = new File(path);
+        if (file.mkdirs()) {
+            log.info("创建目录 {}", path);
+        }
+        String command = MySqlDumpUtils.buildCommand(datasource1, tableName,
+                path + MySqlDumpUtils.buildFileName(datasourceName, tableName, archiveData.getFileNamePattern()));
+        CommandUtils.execCommand(command);
+    }
+
+    /**
+     * 查询表数据占用空间大小
+     *
+     * @param tableName 表名
+     * @return 占用空间大小，单位Byte
+     */
+    public Long getDataLength(String tableName) {
+        return dataTransportDao.getDataLength(tableName);
     }
 }

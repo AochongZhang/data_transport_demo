@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Aochong Zhang
@@ -11,6 +13,8 @@ import java.net.URI;
  */
 @Slf4j
 public abstract class MySqlDumpUtils {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+
     /**
      * 构建mysqldump命令
      *
@@ -53,5 +57,26 @@ public abstract class MySqlDumpUtils {
         String database = uri.getPath().substring(1);
         return buildCommand(host, String.valueOf(port), dataSourceProperties.getUsername(), dataSourceProperties.getPassword(),
                 database, table, file);
+    }
+
+    /**
+     * 构建文件名
+     * 示例：
+     *  参数 datasourceName=d1, tableName=t1, pattern={datasourceName}-{tableName}-{datetime}
+     *  返回 datasource1-test1-20210414152347.sql
+     *
+     * @param datasourceName 数据库源
+     * @param tableName 表名
+     * @param pattern 文件名规则，支持{datasourceName} {tableName} {datetime}
+     * @return
+     */
+    public static String buildFileName(String datasourceName, String tableName, String pattern) {
+        String fileName = pattern;
+        fileName = fileName.replace("{datasourceName}", datasourceName);
+        fileName = fileName.replace("{tableName}", tableName);
+        String datatime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
+        fileName = fileName.replace("{datetime}", datatime);
+        fileName += ".sql";
+        return fileName;
     }
 }

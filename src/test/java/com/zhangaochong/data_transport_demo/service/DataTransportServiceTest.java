@@ -2,6 +2,8 @@ package com.zhangaochong.data_transport_demo.service;
 
 import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
+import com.zhangaochong.data_transport_demo.enums.DataTransportTimeUnit;
+import com.zhangaochong.data_transport_demo.vo.ArchiveDataParam;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -83,5 +85,25 @@ class DataTransportServiceTest {
 
         String s = dataTransportService.exportData(datasourceName, tableName, columnNameList, dataList);
         System.out.println(s);
+    }
+
+    @Test
+    void getDataLength() {
+        String datasourceName = "xxl_job";
+        MultiDatasourceThreadLocal.setDatasourceName(datasourceName);
+        Long test1 = dataTransportService.getDataLength("xxl_job_log");
+        System.out.println(test1);
+    }
+
+    @Test
+    void archiveData() {
+        ArchiveDataParam param = new ArchiveDataParam();
+        param.setDatasourceName("article");
+        param.setTableName("article");
+        param.setTime(1);
+        param.setTimeUnit(DataTransportTimeUnit.HOUR);
+        param.setDateColumn("update_time");
+        param.setFileMaxSize("100M");
+        dataTransportService.archiveData(param);
     }
 }

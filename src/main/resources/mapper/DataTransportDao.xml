@@ -11,12 +11,21 @@
     <select id="isColumnExist" resultType="java.lang.String">
         select COLUMN_NAME
         from information_schema.COLUMNS
-        where TABLE_NAME = #{tableName}
+        where TABLE_SCHEMA = (select database())
+          and TABLE_NAME = #{tableName}
           and COLUMN_NAME = #{column}
     </select>
 
     <update id="createTableLike">
         create table if not exists ${newTableName} like ${oldTableName}
+    </update>
+
+    <update id="dropTable">
+        drop table ${tableName}
+    </update>
+
+    <update id="truncate">
+        truncate ${tableName}
     </update>
 
     <insert id="copyData">
@@ -48,6 +57,21 @@
     <select id="getColumnName" resultType="java.lang.String">
         select COLUMN_NAME
         from information_schema.COLUMNS
-        where TABLE_NAME = #{tableName}
+        where TABLE_SCHEMA = (select database())
+            and TABLE_NAME = #{tableName}
+    </select>
+
+    <select id="getDataLength" resultType="java.lang.Long">
+        select DATA_LENGTH
+        from information_schema.TABLES
+        where table_schema = (select database())
+          and table_name = #{tableName}
+    </select>
+
+    <select id="getTableRow" resultType="java.lang.Integer">
+        select TABLE_ROWS
+        from information_schema.TABLES
+        where table_schema = (select database())
+          and table_name = #{tableName}
     </select>
 </mapper>
