@@ -57,6 +57,10 @@ public class CommandUtils {
         }
     }
 
+    public static void execMultiCommand(String multiCommand) {
+        execCommand(new String[]{"sh", "-c", multiCommand});
+    }
+
     private static String getResult(InputStream inputStream) {
         StringBuilder result = new StringBuilder();
         try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(inputStream))) {

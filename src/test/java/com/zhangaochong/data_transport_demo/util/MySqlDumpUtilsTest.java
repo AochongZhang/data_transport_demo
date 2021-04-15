@@ -19,7 +19,8 @@ class MySqlDumpUtilsTest {
     void test() {
         Map<String, DataSourceProperties> multiDatasource = dataTransportProperties.getMultiDatasource();
         DataSourceProperties datasource1 = multiDatasource.get("datasource1");
-        String command = MySqlDumpUtils.buildCommand(datasource1, "test1", "./exportdata/test11.sql");
-        CommandUtils.execCommand(command);
+        String build = MySqlDumpUtils.build(datasource1, "test4", "test1", "./archivedata/test22.sql");
+        System.out.println(build);
+        CommandUtils.execMultiCommand(build);
     }
 }

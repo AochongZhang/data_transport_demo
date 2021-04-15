@@ -314,10 +314,8 @@ public class DataTransportService {
         }
         String fileName = path + MySqlDumpUtils.buildFileName(datasourceName, tempTableName, archiveData.getFileNamePattern());
         log.info("mysqldump文件名={}", fileName);
-        String command = MySqlDumpUtils.buildCommand(datasource1, tempTableName,
-                fileName);
-        CommandUtils.execCommand(command);
-        CommandUtils.execCommand(MySqlDumpUtils.buildReplaceTableNameCommand(tempTableName, sourceTableName, fileName));
+        String build = MySqlDumpUtils.build(datasource1, sourceTableName, tempTableName, fileName);
+        CommandUtils.execMultiCommand(build);
     }
 
     /**

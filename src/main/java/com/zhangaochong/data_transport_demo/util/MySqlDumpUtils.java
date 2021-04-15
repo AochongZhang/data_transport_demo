@@ -3,11 +3,10 @@ package com.zhangaochong.data_transport_demo.util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
+import java.io.File;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Aochong Zhang
@@ -16,6 +15,27 @@ import java.util.List;
 @Slf4j
 public abstract class MySqlDumpUtils {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+
+    /**
+     * 构建临时表导出压缩文件命令
+     *
+     * @param dataSourceProperties 数据源配置
+     * @param sourceTableName 原表名
+     * @param tempTableName 临时表名
+     * @param fileName 文件名
+     * @return
+     */
+    public static String build(DataSourceProperties dataSourceProperties, String sourceTableName, String tempTableName, String fileName) {
+        // 使用mysqldump导出临时表
+        String dumpCommand = buildDumpCommand(dataSourceProperties, tempTableName, fileName);
+        // 替换临时表名为原表名
+        String replaceTableNameCommand = buildReplaceTableNameCommand(tempTableName, sourceTableName, fileName);
+        // 压缩导出的文件
+        String compressCommand = buildCompressCommand(fileName);
+        // 删除原文件
+        String deleteCommand = buildDeleteCommand(fileName);
+        return dumpCommand + " && " + replaceTableNameCommand + " && " + compressCommand + " && " + deleteCommand;
+    }
 
     /**
      * 构建mysqldump命令
@@ -29,7 +49,7 @@ public abstract class MySqlDumpUtils {
      * @param file 导出文件全路径
      * @return mysqldump命令
      */
-    public static String buildCommand(String host, String port, String username, String password,
+    public static String buildDumpCommand(String host, String port, String username, String password,
                                       String database, String table, String file) {
         StringBuilder command = new StringBuilder();
         command.append("mysqldump")
@@ -52,12 +72,12 @@ public abstract class MySqlDumpUtils {
      * @param file 导出文件全路径
      * @return mysqldump命令
      */
-    public static String buildCommand(DataSourceProperties dataSourceProperties, String table, String file) {
+    public static String buildDumpCommand(DataSourceProperties dataSourceProperties, String table, String file) {
         URI uri = URI.create(dataSourceProperties.getUrl().substring(5));
         String host = uri.getHost();
         int port = uri.getPort();
         String database = uri.getPath().substring(1);
-        return buildCommand(host, String.valueOf(port), dataSourceProperties.getUsername(), dataSourceProperties.getPassword(),
+        return buildDumpCommand(host, String.valueOf(port), dataSourceProperties.getUsername(), dataSourceProperties.getPassword(),
                 database, table, file);
     }
 
@@ -90,17 +110,24 @@ public abstract class MySqlDumpUtils {
      * @param fileName 文件名
      * @return 执行命令
      */
-    public static String[] buildReplaceTableNameCommand(String fromTableName, String toTableName, String fileName) {
-        List<String> commandArray = new ArrayList<>();
-        commandArray.add("sed");
-        commandArray.add("-i");
+    private static String buildReplaceTableNameCommand(String fromTableName, String toTableName, String fileName) {
+        String command = "sed -i";
+
         String osName = System.getProperties().getProperty("os.name");
         // mac下sed命令需增加参数
         if ("Mac OS X".equals(osName)) {
-            commandArray.add("");
+            command += " ''";
         }
-        commandArray.add("s/`" + fromTableName + "`/`"+ toTableName + "`/g");
-        commandArray.add(fileName);
-        return commandArray.toArray(new String[]{});
+        command = command + " 's/`" + fromTableName + "`/`"+ toTableName + "`/g' " + fileName;
+        return command;
+    }
+
+    private static String buildCompressCommand(String fileName) {
+        File file = new File(fileName);
+        return  "tar -zcvf " + file.getAbsolutePath() + ".tar.gz" + " -C " + file.getParentFile().getAbsolutePath() + " " + file.getName();
+    }
+
+    private static String buildDeleteCommand(String fileName) {
+        return "rm -rf " + fileName;
     }
 }
