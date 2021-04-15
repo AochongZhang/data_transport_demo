@@ -245,7 +245,7 @@ public class DataTransportService {
      *
      * @param params 归档参数
      */
-    public void archiveData(ArchiveDataParam params) {
+    public int archiveData(ArchiveDataParam params) {
         log.info("[数据归档] 开始============================================");
         log.info("[数据归档] 参数={}", params);
         // 迁移数据到临时表
@@ -261,16 +261,17 @@ public class DataTransportService {
             throw new IllegalArgumentException("数据源" + params.getDatasourceName() + "中表" + params.getTableName()
                     + "时间列" + params.getDateColumn() + "不存在");
         }
-        String tempTableName = params.getTableName() + "_temp";
+        String bakTableName = params.getTableName() + dataTransportProperties.getBackupTablePostfix();
+        String tempTableName = bakTableName + "_temp";
         log.info("[数据归档] 创建临时表{}", tempTableName);
-        dataTransportDao.createTableLike(params.getTableName(), tempTableName);
+        dataTransportDao.createTableLike(bakTableName, tempTableName);
         long fileMaxSize = FileSizeUtils.parseToByte(params.getFileMaxSize());
         // 分批循环迁移数据
         int row = 0;
         int countRow = 0;
         do {
             log.info("[数据归档] 分批迁移到临时表开始，步长={}", dataTransportProperties.getArchiveData().getStepLength());
-            row = transportData(params.getTableName(), tempTableName, dataTransportProperties.getArchiveData().getStepLength(),
+            row = transportData(bakTableName, tempTableName, dataTransportProperties.getArchiveData().getStepLength(),
                     DataTransportTimeUtils.minusTime(LocalDateTime.now(), params.getTime(), params.getTimeUnit()),
                     params.getDateColumn());
             countRow += row;
@@ -278,29 +279,31 @@ public class DataTransportService {
             // 临时表数据量达到指定最大文件大小，执行dump临时表为文件
             if (row != 0 && dataLength >= fileMaxSize) {
                 log.info("[数据归档] 分批迁移中, 临时表数据量达到最大文件大小, 临时表大小={}Byte, 最大文件大小={}Byte", dataLength, fileMaxSize);
-                dumpFile(params.getDatasourceName(), tempTableName);
+                dumpFile(params.getDatasourceName(), params.getTableName(), tempTableName);
                 dataTransportDao.truncate(tempTableName);
             }
         } while (row != 0);
         Integer tableRow = dataTransportDao.getTableRow(tempTableName);
         if (tableRow != 0) {
             log.info("[数据归档] 分批迁移结束, 最后临时表数据量={}", tableRow);
-            dumpFile(params.getDatasourceName(), tempTableName);
+            dumpFile(params.getDatasourceName(), params.getTableName(), tempTableName);
         }
         dataTransportDao.dropTable(tempTableName);
         // 压缩上传文件
         MultiDatasourceThreadLocal.removeDatasourceName();
         log.info("[数据归档] 归档条数={}", countRow);
         log.info("[数据归档] 结束============================================");
+        return countRow;
     }
 
     /**
      * 使用mysqldump导出表数据
      *
      * @param datasourceName 数据源名
-     * @param tableName 表名
+     * @param sourceTableName 原表名
+     * @param tempTableName 临时表名
      */
-    public void dumpFile(String datasourceName, String tableName) {
+    public void dumpFile(String datasourceName, String sourceTableName, String tempTableName) {
         Map<String, DataSourceProperties> multiDatasource = dataTransportProperties.getMultiDatasource();
         DataTransportProperties.ArchiveData archiveData = dataTransportProperties.getArchiveData();
         DataSourceProperties datasource1 = multiDatasource.get(datasourceName);
@@ -309,9 +312,12 @@ public class DataTransportService {
         if (file.mkdirs()) {
             log.info("创建目录 {}", path);
         }
-        String command = MySqlDumpUtils.buildCommand(datasource1, tableName,
-                path + MySqlDumpUtils.buildFileName(datasourceName, tableName, archiveData.getFileNamePattern()));
+        String fileName = path + MySqlDumpUtils.buildFileName(datasourceName, tempTableName, archiveData.getFileNamePattern());
+        log.info("mysqldump文件名={}", fileName);
+        String command = MySqlDumpUtils.buildCommand(datasource1, tempTableName,
+                fileName);
         CommandUtils.execCommand(command);
+        CommandUtils.execCommand(MySqlDumpUtils.buildReplaceTableNameCommand(tempTableName, sourceTableName, fileName));
     }
 
     /**

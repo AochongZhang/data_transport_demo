@@ -4,6 +4,7 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import com.zhangaochong.data_transport_demo.service.DataTransportService;
 import com.zhangaochong.data_transport_demo.util.StringParamsUtils;
+import com.zhangaochong.data_transport_demo.vo.ArchiveDataParam;
 import com.zhangaochong.data_transport_demo.vo.BackupDataParam;
 import com.zhangaochong.data_transport_demo.vo.RecoverDataParam;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +21,6 @@ public class AochongJobHandler {
     @Autowired
     private DataTransportService dataTransportService;
 
-    @XxlJob("AochongJobHandler")
-    public ReturnT<String> demoJobHandler(String param) throws Exception {
-        log.info("param={}", param);
-        BackupDataParam jobParam = BackupDataParam.formMap(StringParamsUtils.parseParams(param));
-        log.info("jobParam={}", jobParam);
-        return ReturnT.SUCCESS;
-    }
-
     @XxlJob("BackupDataJobHandler")
     public ReturnT<String > backupDataJobHandler(String param) throws Exception {
         BackupDataParam params = BackupDataParam.formMap(StringParamsUtils.parseParams(param));
@@ -39,6 +32,13 @@ public class AochongJobHandler {
     public ReturnT<String > recoverDataJobHandler(String param) throws Exception {
         RecoverDataParam params = RecoverDataParam.formMap(StringParamsUtils.parseParams(param));
         int row = dataTransportService.recoverData(params);
+        return ReturnT.SUCCESS;
+    }
+
+    @XxlJob("ArchiveDataJobHandler")
+    public ReturnT<String > archiveDataJobHandler(String param) throws Exception {
+        ArchiveDataParam params = ArchiveDataParam.formMap(StringParamsUtils.parseParams(param));
+        int row = dataTransportService.archiveData(params);
         return ReturnT.SUCCESS;
     }
 }

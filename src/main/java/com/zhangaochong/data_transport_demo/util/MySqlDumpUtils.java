@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Aochong Zhang
@@ -78,5 +80,27 @@ public abstract class MySqlDumpUtils {
         fileName = fileName.replace("{datetime}", datatime);
         fileName += ".sql";
         return fileName;
+    }
+
+    /**
+     * 构建替换文件中表名命令
+     *
+     * @param fromTableName 被替换的表名
+     * @param toTableName 新表名
+     * @param fileName 文件名
+     * @return 执行命令
+     */
+    public static String[] buildReplaceTableNameCommand(String fromTableName, String toTableName, String fileName) {
+        List<String> commandArray = new ArrayList<>();
+        commandArray.add("sed");
+        commandArray.add("-i");
+        String osName = System.getProperties().getProperty("os.name");
+        // mac下sed命令需增加参数
+        if ("Mac OS X".equals(osName)) {
+            commandArray.add("");
+        }
+        commandArray.add("s/`" + fromTableName + "`/`"+ toTableName + "`/g");
+        commandArray.add(fileName);
+        return commandArray.toArray(new String[]{});
     }
 }

@@ -21,6 +21,7 @@ public abstract class StringParamsUtils {
         if (StringUtils.isEmpty(params)) {
             return Collections.emptyMap();
         }
+        params = params.replace("\r", "");
         params = params.replace("\n", "");
         String[] paramArray = params.split(",");
         if (paramArray.length == 0) {

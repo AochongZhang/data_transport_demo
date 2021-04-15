@@ -35,6 +35,28 @@ public class CommandUtils {
         }
     }
 
+    /**
+     * 执行命令
+     *
+     * @param cmdarray 命令
+     */
+    public static void execCommand(String[] cmdarray) {
+        try {
+            Process process = Runtime.getRuntime().exec(cmdarray);
+            int waitFor = process.waitFor();
+            if (waitFor == 0) {
+                log.info("[执行命令] 成功, 标准输出: {}", getResult(process.getInputStream()));
+            } else {
+                String result = getResult(process.getErrorStream());
+                log.error("[执行命令] 失败, 错误输出: {}", result);
+                throw new RuntimeException("[执行命令] 失败, 错误输出: " + result);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            throw new RuntimeException("命令执行出错");
+        }
+    }
+
     private static String getResult(InputStream inputStream) {
         StringBuilder result = new StringBuilder();
         try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(inputStream))) {
