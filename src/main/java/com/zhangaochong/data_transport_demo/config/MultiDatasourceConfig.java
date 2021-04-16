@@ -2,6 +2,7 @@ package com.zhangaochong.data_transport_demo.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ public class MultiDatasourceConfig {
     private DataSourceProperties dataSourceProperties;
 
     @Bean
+    @ConditionalOnProperty("data-transport.multi-datasource")
     public MultiDatasource multiDatasource() {
         Map<Object, Object> datasourceMap = new HashMap<>(dataTransportProperties.getMultiDatasource().size() + 1);
 

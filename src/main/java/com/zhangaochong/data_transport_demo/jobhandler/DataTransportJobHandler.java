@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class AochongJobHandler {
+public class DataTransportJobHandler {
     @Autowired
     private DataTransportService dataTransportService;
 

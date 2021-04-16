@@ -122,11 +122,23 @@ public abstract class MySqlDumpUtils {
         return command;
     }
 
+    /**
+     * 构建压缩命令
+     *
+     * @param fileName 文件名
+     * @return 压缩命令
+     */
     private static String buildCompressCommand(String fileName) {
         File file = new File(fileName);
         return  "tar -zcvf " + file.getAbsolutePath() + ".tar.gz" + " -C " + file.getParentFile().getAbsolutePath() + " " + file.getName();
     }
 
+    /**
+     * 构建删除命令
+     *
+     * @param fileName 文件名
+     * @return 删除命令
+     */
     private static String buildDeleteCommand(String fileName) {
         return "rm -rf " + fileName;
     }

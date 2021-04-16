@@ -57,6 +57,11 @@ public class CommandUtils {
         }
     }
 
+    /**
+     * 执行由连接符连接的多个命令
+     *
+     * @param multiCommand 命令
+     */
     public static void execMultiCommand(String multiCommand) {
         execCommand(new String[]{"sh", "-c", multiCommand});
     }
