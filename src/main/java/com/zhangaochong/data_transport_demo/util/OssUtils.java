@@ -17,7 +17,6 @@ public abstract class OssUtils {
     public static PutObjectResult upload(OssProperties ossProperties, File file, String uploadPath) {
         OSS oss = new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAccessKeyId(),
                 ossProperties.getAccessKeySecret());
-        uploadPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
         String uploadFileName = uploadPath + file.getName();
         PutObjectResult putObjectResult = oss.putObject(ossProperties.getBucketName(), uploadFileName, file);
         log.info("[上传到oss] uploadFileName={}", uploadFileName);

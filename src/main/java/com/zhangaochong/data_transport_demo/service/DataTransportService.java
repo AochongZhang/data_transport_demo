@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ import java.util.Map;
 @Slf4j
 @Service
 public class DataTransportService {
+    public static final DateTimeFormatter OSS_PATH_FORMATTER = DateTimeFormatter.ofPattern("yyyyMM");
+
     @Autowired
     private DataTransportDao dataTransportDao;
 
@@ -343,7 +346,11 @@ public class DataTransportService {
         XxlJobLogger.log("mysqldump文件名={}", fileName);
         String build = MySqlDumpUtils.build(datasource1, sourceTableName, tempTableName, fileName);
         CommandUtils.execMultiCommand(build);
-        uploadFile(new File(fileName + MySqlDumpUtils.COMPRESS_POSTFIX));
+        String compressFileName = fileName + MySqlDumpUtils.COMPRESS_POSTFIX;
+        // 上传文件到oss
+        uploadFile(new File(compressFileName));
+        // 删除本地文件
+        CommandUtils.execMultiCommand(MySqlDumpUtils.buildDeleteCommand(compressFileName));
     }
 
     /**
@@ -358,6 +365,8 @@ public class DataTransportService {
 
     public void uploadFile(File file) {
         String uploadPath = dataTransportProperties.getArchiveData().getUploadPath();
+        uploadPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+        uploadPath = uploadPath + OSS_PATH_FORMATTER.format(LocalDateTime.now()) + "/";
         OssUtils.upload(ossProperties, file, uploadPath);
     }
 }

@@ -140,7 +140,7 @@ public abstract class MySqlDumpUtils {
      * @param fileName 文件名
      * @return 删除命令
      */
-    private static String buildDeleteCommand(String fileName) {
+    public static String buildDeleteCommand(String fileName) {
         return "rm -rf " + fileName;
     }
 }
