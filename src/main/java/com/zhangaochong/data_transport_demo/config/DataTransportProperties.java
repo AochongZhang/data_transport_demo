@@ -43,5 +43,7 @@ public class DataTransportProperties {
         private String fileNamePattern;
         /** 分批循环迁移每次迁移到临时表数据量 */
         private Integer stepLength;
+        /** 上传文件路径 */
+        private String uploadPath;
     }
 }

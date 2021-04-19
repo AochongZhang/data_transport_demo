@@ -3,6 +3,7 @@ package com.zhangaochong.data_transport_demo.service;
 import com.xxl.job.core.log.XxlJobLogger;
 import com.zhangaochong.data_transport_demo.config.DataTransportProperties;
 import com.zhangaochong.data_transport_demo.config.MultiDatasourceThreadLocal;
+import com.zhangaochong.data_transport_demo.config.OssProperties;
 import com.zhangaochong.data_transport_demo.dao.DataTransportDao;
 import com.zhangaochong.data_transport_demo.strategy.DataExportFormatStrategy;
 import com.zhangaochong.data_transport_demo.util.*;
@@ -33,6 +34,9 @@ public class DataTransportService {
 
     @Autowired
     private DataTransportProperties dataTransportProperties;
+
+    @Autowired
+    private OssProperties ossProperties;
 
     /**
      * 备份数据
@@ -339,6 +343,7 @@ public class DataTransportService {
         XxlJobLogger.log("mysqldump文件名={}", fileName);
         String build = MySqlDumpUtils.build(datasource1, sourceTableName, tempTableName, fileName);
         CommandUtils.execMultiCommand(build);
+        uploadFile(new File(fileName + MySqlDumpUtils.COMPRESS_POSTFIX));
     }
 
     /**
@@ -349,5 +354,10 @@ public class DataTransportService {
      */
     public Long getDataLength(String tableName) {
         return dataTransportDao.getDataLength(tableName);
+    }
+
+    public void uploadFile(File file) {
+        String uploadPath = dataTransportProperties.getArchiveData().getUploadPath();
+        OssUtils.upload(ossProperties, file, uploadPath);
     }
 }

@@ -14,7 +14,8 @@ import java.time.format.DateTimeFormatter;
  */
 @Slf4j
 public abstract class MySqlDumpUtils {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+    public static final String COMPRESS_POSTFIX = ".tar.gz";
 
     /**
      * 构建临时表导出压缩文件命令
@@ -130,7 +131,7 @@ public abstract class MySqlDumpUtils {
      */
     private static String buildCompressCommand(String fileName) {
         File file = new File(fileName);
-        return  "tar -zcvf " + file.getAbsolutePath() + ".tar.gz" + " -C " + file.getParentFile().getAbsolutePath() + " " + file.getName();
+        return  "tar -zcvf " + file.getAbsolutePath() + COMPRESS_POSTFIX + " -C " + file.getParentFile().getAbsolutePath() + " " + file.getName();
     }
 
     /**

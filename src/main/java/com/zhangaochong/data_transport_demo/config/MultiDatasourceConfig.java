@@ -28,21 +28,25 @@ public class MultiDatasourceConfig {
     private DataSourceProperties dataSourceProperties;
 
     @Bean
-    @ConditionalOnProperty("data-transport.multi-datasource")
     public MultiDatasource multiDatasource() {
-        Map<Object, Object> datasourceMap = new HashMap<>(dataTransportProperties.getMultiDatasource().size() + 1);
+        Map<String, DataSourceProperties> multiDatasourceProperties = dataTransportProperties.getMultiDatasource();
+
+        Map<Object, Object> datasourceMap;
+        if (multiDatasourceProperties != null) {
+            datasourceMap = new HashMap<>(multiDatasourceProperties.size() + 1);
+            // 多数据源 data-transport.multi-datasource
+            for (String datasourceName : multiDatasourceProperties.keySet()) {
+                DataSourceProperties properties = multiDatasourceProperties.get(datasourceName);
+                DruidDataSource dataSource = properties.initializeDataSourceBuilder().type(DruidDataSource.class).build();
+                datasourceMap.put(datasourceName, dataSource);
+            }
+        } else {
+            datasourceMap = new HashMap<>(1);
+        }
 
         // 默认数据源 spring.datasource
         DruidDataSource defaultDataSource = dataSourceProperties.initializeDataSourceBuilder().type(DruidDataSource.class).build();
         datasourceMap.put(MultiDatasourceThreadLocal.DEFAULT_DATASOURCE, defaultDataSource);
-
-        // 多数据源 data-transport.multi-datasource
-        Map<String, DataSourceProperties> multiDatasourceProperties = dataTransportProperties.getMultiDatasource();
-        for (String datasourceName : multiDatasourceProperties.keySet()) {
-            DataSourceProperties properties = multiDatasourceProperties.get(datasourceName);
-            DruidDataSource dataSource = properties.initializeDataSourceBuilder().type(DruidDataSource.class).build();
-            datasourceMap.put(datasourceName, dataSource);
-        }
 
         MultiDatasource multiDatasource = new MultiDatasource();
         multiDatasource.setTargetDataSources(datasourceMap);
