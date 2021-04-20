@@ -2,6 +2,7 @@ package com.zhangaochong.data_transport_demo.vo;
 
 import com.zhangaochong.data_transport_demo.util.DataTransportTimeUtils;
 import lombok.Data;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -32,10 +33,19 @@ public class RecoverDataParam {
 
     public static RecoverDataParam formMap(Map<String, String> map) {
         String datasourceName = map.get("datasourceName");
+        if (!StringUtils.hasText(datasourceName)) {
+            throw new IllegalArgumentException("datasourceName参数不正确");
+        }
         String tableName = map.get("tableName");
+        if (!StringUtils.hasText(tableName)) {
+            throw new IllegalArgumentException("tableName参数不正确");
+        }
         LocalDateTime startTime = DataTransportTimeUtils.parseFromString(map.get("startTime"));
         LocalDateTime endTime = DataTransportTimeUtils.parseFromString(map.get("endTime"));
         String dateColumn = map.get("dateColumn");
+        if (!StringUtils.hasText(dateColumn)) {
+            throw new IllegalArgumentException("dateColumn参数不正确");
+        }
         Boolean isOverwrite = Boolean.valueOf(map.get("isOverwrite"));
 
         RecoverDataParam param = new RecoverDataParam();

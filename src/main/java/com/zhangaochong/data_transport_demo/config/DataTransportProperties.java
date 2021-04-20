@@ -23,7 +23,7 @@ public class DataTransportProperties {
     /** 导出配置 */
     private DataExport dataExport;
     /** 归档配置 */
-    private ArchiveData archiveData;
+    private ArchiveData archiveData = new ArchiveData();
 
     @Data
     public static class DataExport {

@@ -283,6 +283,7 @@ public class DataTransportService {
             throw new IllegalArgumentException("数据源" + params.getDatasourceName() + "中表" + params.getTableName()
                     + "时间列" + params.getDateColumn() + "不存在");
         }
+        checkoutProperties();
         String bakTableName = params.getTableName() + dataTransportProperties.getBackupTablePostfix();
         String tempTableName = bakTableName + "_temp";
         log.info("[数据归档] 创建临时表{}", tempTableName);
@@ -368,5 +369,26 @@ public class DataTransportService {
         uploadPath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
         uploadPath = uploadPath + OSS_PATH_FORMATTER.format(LocalDateTime.now()) + "/";
         OssUtils.upload(ossProperties, file, uploadPath);
+    }
+
+    private void checkoutProperties() {
+        DataTransportProperties.ArchiveData archiveData = dataTransportProperties.getArchiveData();
+        if (archiveData == null) {
+            throw new IllegalArgumentException("archive-data配置不存在");
+        }
+        if (!StringUtils.hasText(archiveData.getFilePath())) {
+            throw new IllegalArgumentException("archive-data.file-path配置不存在");
+        }
+        if (!StringUtils.hasText(archiveData.getUploadPath())) {
+            throw new IllegalArgumentException("archive-data.upload-path配置不存在");
+        }
+
+        if (ossProperties == null) {
+            throw new IllegalArgumentException("oss配置不存在");
+        }
+        if (!StringUtils.hasText(ossProperties.getEndpoint()) || !StringUtils.hasText(ossProperties.getAccessKeyId())
+                || !StringUtils.hasText(ossProperties.getAccessKeySecret()) || !StringUtils.hasText(ossProperties.getBucketName())) {
+            throw new IllegalArgumentException("oss配置不正确");
+        }
     }
 }
