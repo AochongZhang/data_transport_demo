@@ -143,4 +143,18 @@ public abstract class MySqlDumpUtils {
     public static String buildDeleteCommand(String fileName) {
         return "rm -rf " + fileName;
     }
+
+    /**
+     * 判断mysqldump是否安装
+     *
+     * @return mysqldump是否安装
+     */
+    public static boolean mysqldumpExist() {
+        try {
+            CommandUtils.execMultiCommand("mysqldump -V");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

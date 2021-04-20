@@ -40,9 +40,9 @@ public class DataTransportProperties {
         /** 归档文件路径 */
         private String filePath;
         /** 归档文件名规则 支持{datasourceName} {tableName} {datetime} */
-        private String fileNamePattern;
+        private String fileNamePattern = "{datasourceName}-{tableName}-{datetime}";
         /** 分批循环迁移每次迁移到临时表数据量 */
-        private Integer stepLength;
+        private Integer stepLength = 1000;
         /** 上传文件路径 */
         private String uploadPath;
     }
